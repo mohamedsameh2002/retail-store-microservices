@@ -18,6 +18,7 @@ concurrency:
 env:
   AWS_REGION: us-east-1
   ECR_REPOSITORY: retail-store/ui
+  MY_GETHUB_REPO: mohamedsameh2002/kubernetes-helm-retail-store.git
 
 defaults:
   run:
@@ -102,8 +103,7 @@ jobs:
       ##########################################################################
       - name: Clone Helm Repository
         run: |
-          git clone \
-            https://x-access-token:${{ secrets.HELM_REPO_TOKEN }}@github.com/mohamedsameh2002/kubernetes-helm-retail-store.git
+          git clone https://x-access-token:${{ secrets.HELM_REPO_TOKEN }}@github.com/${{ env.MY_GETHUB_REPO }}
 
           cd kubernetes-helm-retail-store
 
