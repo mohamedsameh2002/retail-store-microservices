@@ -26,10 +26,10 @@ defaults:
 
 jobs:
   build-and-push-ui:
-    environment: Production
     name: Build & Push UI Image
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    environment: Production
 
     steps:
       ##########################################################################
@@ -102,6 +102,18 @@ jobs:
       ##########################################################################
       # Configure Git
       ##########################################################################
+
+      - name: Verify secret
+        run: |
+          if [ -z "${{ secrets.HELM_REPO_TOKEN }}" ]; then
+            echo "Token is EMPTY"
+            exit 1
+          else
+            echo "Token is PRESENT"
+          fi
+
+
+            
       - name: Clone Helm Repository
         run: |
           git clone https://x-access-token:${{ secrets.HELM_REPO_TOKEN }}@github.com/${{ env.MY_GETHUB_REPO }}
