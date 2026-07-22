@@ -104,7 +104,7 @@ jobs:
       ##########################################################################
       - name: Clone Helm Repository
         run: |
-          git clone https://mohamedsameh2002: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@github.com/${{ github.repository_owner }}/kubernetes-helm-retail-store.git 
+          git clone https://x-access-token:${{ secrets.HELM_REPO_TOKEN }}@github.com/${{ env.MY_GETHUB_REPO }}
 
           cd kubernetes-helm-retail-store
 
