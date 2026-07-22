@@ -26,6 +26,7 @@ defaults:
 
 jobs:
   build-and-push-ui:
+    environment: Production
     name: Build & Push UI Image
     runs-on: ubuntu-latest
     timeout-minutes: 30
