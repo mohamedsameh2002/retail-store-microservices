@@ -1,7 +1,7 @@
 # Open Source Software Attribution
 
 This software depends on external packages and source code.
-The applicable license information is listed below:
+The applicable license information is listed below:#
 
 ----
 
