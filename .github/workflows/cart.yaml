@@ -1,32 +1,31 @@
-name: Build and Push UI Service to ECR
+name: Build and Push Cart Service to ECR
 
 on:
   push:
     branches:
       - main
     paths:
-      - "src/ui/**"
-      # - ".github/workflows/build-push-ui.yaml" # Uncomment during workflow testing
+      - "src/cart/**"
 
 permissions:
   id-token: write
 
 concurrency:
-  group: ui-${{ github.ref }}
+  group: cart-${{ github.ref }}
   cancel-in-progress: true
 
 env:
-  AWS_REGION: us-east-1
-  ECR_REPOSITORY: retail-store/ui
-  MY_GETHUB_REPO: mohamedsameh2002/kubernetes-helm-retail-store.git
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  MY_GITHUB_REPO: ${{ vars.HELM_REPO }}
+  ECR_REPOSITORY: retail-store/cart
 
 defaults:
   run:
     shell: bash
 
 jobs:
-  build-and-push-ui:
-    name: Build & Push UI Image
+  build-and-push-cart:
+    name: Build & Push Cart Image
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: Production
@@ -83,7 +82,7 @@ jobs:
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v6
         with:
-          context: ./src/ui
+          context: ./src/cart
           push: true
 
           tags: |
@@ -94,9 +93,9 @@ jobs:
           cache-to: type=gha,mode=max
 
           labels: |
-            org.opencontainers.image.title=Retail Store UI
-            org.opencontainers.image.description=Retail Store UI Service
-            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.title=Retail Store cart
+            org.opencontainers.image.description=Retail Store cart Service
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}/src/cart
             org.opencontainers.image.revision=${{ github.sha }}
 
       ##########################################################################
@@ -104,7 +103,7 @@ jobs:
       ##########################################################################
       - name: Clone Helm Repository
         run: |
-          git clone https://x-access-token:${{ secrets.HELM_REPO_TOKEN }}@github.com/${{ env.MY_GETHUB_REPO }}
+          git clone https://x-access-token:${{ secrets.HELM_REPO_TOKEN }}@github.com/${{ env.MY_GITHUB_REPO }}
 
           cd kubernetes-helm-retail-store
 
@@ -115,20 +114,19 @@ jobs:
       # Update Helm Values
       ##########################################################################
       - name: Update Helm Image Tag
-        working-directory: kubernetes-helm-retail-store/helm/retail-store-sample-ui-chart
+        working-directory: kubernetes-helm-retail-store/helm/cart-chart
         run: |
+          sed -i "s|^  tag: .*|  tag: sha-$SHORT_SHA|" values.yaml
 
-          sed -i \
-            "s|^  tag: .*|  tag: sha-$SHORT_SHA|" \
-            values.yaml
-
-          if git diff --quiet; then
+          if git diff --quiet -- values.yaml; then
             echo "No changes detected."
             exit 0
           fi
 
           git add values.yaml
-          git commit -m "Update UI image tag to sha-$SHORT_SHA"
+          git commit -m "Update cart image tag to sha-$SHORT_SHA"
+
+          git pull --rebase origin main
           git push origin main
 
       ##########################################################################
@@ -137,7 +135,7 @@ jobs:
       - name: Publish Build Summary
         run: |
           {
-            echo "# UI Service Build"
+            echo "# cart Service Build"
             echo ""
             echo "## Build Information"
             echo ""
@@ -154,4 +152,4 @@ jobs:
       # Complete
       ##########################################################################
       - name: Complete
-        run: echo "UI pipeline completed successfully."
+        run: echo "cart pipeline completed successfully."
